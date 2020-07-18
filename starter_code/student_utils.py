@@ -12,7 +12,9 @@ def reduce_dimension_ndc(df, ndc_df):
     return:
         df: pandas dataframe, output dataframe with joined generic drug name
     '''
-    return df
+    merged_df = pd.merge(df, ndc_df[[ 'NDC_Code', 'Non-proprietary Name']], how = 'left', left_on = 'ndc_code', right_on = 'NDC_Code')
+    merged_df.rename(columns={'Non-proprietary Name': 'generic_drug_name'}, inplace=True)
+    return merged_df
 
 #Question 4
 def select_first_encounter(df):
@@ -21,7 +23,10 @@ def select_first_encounter(df):
     return:
         - first_encounter_df: pandas dataframe, dataframe with only the first encounter for a given patient
     '''
-    return first_encounter_df
+    first_encounter_df = df.sort_values(by='encounter_id')
+    last_encounter_values = first_encounter_df.groupby('patient_nbr')['encounter_id'].tail(1).values
+    
+    return first_encounter_df[first_encounter_df['encounter_id'].isin(last_encounter_values)]
 
 
 #Question 6
@@ -35,6 +40,16 @@ def patient_dataset_splitter(df, patient_key='patient_nbr'):
      - validation: pandas dataframe,
      - test: pandas dataframe,
     '''
+        test_percentage, val_percentage = 0.2, 0.2
+        df = df.iloc[np.random.permutation(len(df))]
+        unique_values = df[patient_key].unique()
+        total_values = len(unique_values)
+        train_size = round(total_values * (1 - (val_percentage + test_percentage)))
+        val_size = round(total_values * val_percentage)
+        train = df[df[key].isin(unique_values[:train_size])].reset_index(drop=True)
+        validation = df[df[key].isin(unique_values[train_size:(train_size+val_size)])].reset_index(drop=True)
+        test = df[df[key].isin(unique_values[(train_size+val_size):])].reset_index(drop=True)
+          
     return train, validation, test
 
 #Question 7
