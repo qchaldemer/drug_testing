@@ -40,15 +40,15 @@ def patient_dataset_splitter(df, patient_key='patient_nbr'):
      - validation: pandas dataframe,
      - test: pandas dataframe,
     '''
-        test_percentage, val_percentage = 0.2, 0.2
-        df = df.iloc[np.random.permutation(len(df))]
-        unique_values = df[patient_key].unique()
-        total_values = len(unique_values)
-        train_size = round(total_values * (1 - (val_percentage + test_percentage)))
-        val_size = round(total_values * val_percentage)
-        train = df[df[key].isin(unique_values[:train_size])].reset_index(drop=True)
-        validation = df[df[key].isin(unique_values[train_size:(train_size+val_size)])].reset_index(drop=True)
-        test = df[df[key].isin(unique_values[(train_size+val_size):])].reset_index(drop=True)
+    test_percentage, val_percentage = 0.2, 0.2
+    df = df.iloc[np.random.permutation(len(df))]
+    unique_values = df[patient_key].unique()
+    total_values = len(unique_values)
+    train_size = round(total_values * (1 - (val_percentage + test_percentage)))
+    val_size = round(total_values * val_percentage)
+    train = df[df[key].isin(unique_values[:train_size])].reset_index(drop=True)
+    validation = df[df[key].isin(unique_values[train_size:(train_size+val_size)])].reset_index(drop=True)
+    test = df[df[key].isin(unique_values[(train_size+val_size):])].reset_index(drop=True)
           
     return train, validation, test
 
