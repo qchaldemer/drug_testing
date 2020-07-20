@@ -28,7 +28,10 @@ def select_first_encounter(df):
     df = df.sort_values(by='encounter_id')
     last_encounter_values = df.groupby('patient_nbr')['encounter_id'].head(1).values
     
-    return df[df['encounter_id'].isin(last_encounter_values)]
+    output_df = df[df['encounter_id'].isin(last_encounter_values)]
+    output_df = output_df.drop_duplicates(['patient_nbr', 'encounter_id'])
+    
+    return output_df
 
 
 #Question 6
