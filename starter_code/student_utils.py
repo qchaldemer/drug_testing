@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import tensorflow as tf
+import functools
 
 ####### STUDENTS FILL THIS OUT ######
 #Question 3
@@ -55,7 +56,7 @@ def patient_dataset_splitter(df, patient_key='patient_nbr'):
 #Question 7
 
 def create_tf_categorical_feature_cols(categorical_col_list,
-                              vocab_dir='./diabetes_vocab/'):
+                              vocab_dir='./diabetes_vocab/', dims = 10):
     '''
     categorical_col_list: list, categorical field list that will be transformed with TF feature column
     vocab_dir: string, the path where the vocabulary text files are located
@@ -71,6 +72,11 @@ def create_tf_categorical_feature_cols(categorical_col_list,
         tf_categorical_feature_column = tf.feature_column.......
 
         '''
+        vocab = tf.feature_column.categorical_column_with_vocabulary_file(
+        key=c, vocabulary_file=vocab_file_path)
+        
+        tf_categorical_feature_column = tf.feature_column.embedding_column(vocab, dimension=dims)
+        
         output_tf_list.append(tf_categorical_feature_column)
     return output_tf_list
 
@@ -93,6 +99,10 @@ def create_tf_numeric_feature(col, MEAN, STD, default_value=0):
     return:
         tf_numeric_feature: tf feature column representation of the input field
     '''
+    normalizer = functools.partial(normalize_numeric_with_zscore, mean = MEAN, std = STD)
+    tf_numeric_feature = tf.feature_column.numeric_column(key = col, default_value = default_value, 
+                                                          normalizer_fn = normalizer, dtype = tf.float64)
+    
     return tf_numeric_feature
 
 #Question 9
