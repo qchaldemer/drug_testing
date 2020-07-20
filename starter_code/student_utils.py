@@ -15,6 +15,7 @@ def reduce_dimension_ndc(df, ndc_df):
     '''
     merged_df = pd.merge(df, ndc_df[[ 'NDC_Code', 'Non-proprietary Name']], how = 'left', left_on = 'ndc_code', right_on = 'NDC_Code')
     merged_df.rename(columns={'Non-proprietary Name': 'generic_drug_name'}, inplace=True)
+    merged_df.drop(columns='NDC_Code', inplace=True)
     return merged_df
 
 #Question 4
@@ -24,10 +25,10 @@ def select_first_encounter(df):
     return:
         - first_encounter_df: pandas dataframe, dataframe with only the first encounter for a given patient
     '''
-    first_encounter_df = df.sort_values(by='encounter_id')
-    last_encounter_values = first_encounter_df.groupby('patient_nbr')['encounter_id'].tail(1).values
+    df = df.sort_values(by='encounter_id')
+    last_encounter_values = df.groupby('patient_nbr')['encounter_id'].head(1).values
     
-    return first_encounter_df[first_encounter_df['encounter_id'].isin(last_encounter_values)]
+    return df[df['encounter_id'].isin(last_encounter_values)]
 
 
 #Question 6
@@ -110,8 +111,8 @@ def get_mean_std_from_preds(diabetes_yhat):
     '''
     diabetes_yhat: TF Probability prediction object
     '''
-    m = '?'
-    s = '?'
+    m = diabetes_yhat.mean()
+    s = diabetes_yhat.stddev()
     return m, s
 
 # Question 10
@@ -122,4 +123,5 @@ def get_student_binary_prediction(df, col):
     return:
         student_binary_prediction: pandas dataframe converting input to flattened numpy array and binary labels
     '''
+    student_binary_prediction = df[col].apply(lambda x: 1 if x >= 5 else 0)
     return student_binary_prediction
